@@ -2,51 +2,57 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '@environments/environment';
 import type { GiphyResponse } from '../interfaces/giphy.interfaces';
-import { Gif } from '../interfaces/gif.interface';
 import { GifMapper } from '../mapper/gif.mapper';
-import { map } from 'rxjs';
+import { Gif } from '../interfaces/gif.interface';
 
-@Injectable({providedIn: 'root'})
-export class GifService {
+@Injectable({
+  providedIn: 'root',
+})
+export class GifsService {
 
-  private http = inject(HttpClient)
+  private http = inject(HttpClient);
 
-  trendingGifs = signal<Gif[]>([])
-  trendingGifsloading = signal(true);
+  trendingGifs = signal<Gif[]>([]);
+  trendingGifsLoading = signal(true);
 
-  constructor(){
+  constructor() {
     this.loadTrendingGifs();
+    console.log('Servicio Creado');
   }
 
-  loadTrendingGifs(){
-    this.http.get<GiphyResponse>( `${ environment.giphyUrl }/gifs/trending`, {
-      params: {
-        api_key: environment.giphyapiKey,
-        limit: 20,
+  loadTrendingGifs() {
+
+    this.http.get<GiphyResponse>(
+      `${environment.giphyUrl}/gifs/trending`,
+      {
+        params: {
+          api_key: environment.giphyapiKey,
+          limit: 20,
+        },
       }
-    }).subscribe( (resp)  => {
+    )
+    .subscribe((resp) => {
+
       const gifs = GifMapper.mapGiphyItemsToGifArray(resp.data);
+
       this.trendingGifs.set(gifs);
-      this.trendingGifsloading.set(false)
+      this.trendingGifsLoading.set(false);
+
       console.log({ gifs });
     });
   }
 
-   searchGifs(query: string){
-    return this.http.get<GiphyResponse>(`${ environment.giphyUrl }/gifs/search`, {
-      params: {
-        api_key: environment.giphyapiKey,
-        limit: 20,
-        q: query,
-      }
-    }).pipe(
-      map(({data}) => data ),
-      map((items) => GifMapper.mapGiphyItemsToGifArray(items))
-    );
+  searchGifs(query: string) {
 
-    // .subscribe( (resp)  => {
-    //   const gifs = GifMapper.mapGiphyItemsToGifArray(resp.data);
-    //   console.log({ search: gifs });
-    // });
+    return this.http.get<GiphyResponse>(
+      `${environment.giphyUrl}/gifs/search`,
+      {
+        params: {
+          api_key: environment.giphyapiKey,
+          limit: 20,
+          q: query,
+        },
+      }
+    );
   }
 }
