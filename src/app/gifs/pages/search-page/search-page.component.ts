@@ -10,11 +10,11 @@ import { Gif } from '../../interfaces/gif.interface';
 })
 export default class SearchPageComponent {
 
-  gifsService = inject(GifsService)
+  gifService = inject(GifsService)
   gifs = signal<Gif[]>([]);
 
   onSearch(query: string){
-    this.gifsService.searchGifs(query).subscribe((resp)  => {
+    this.gifService.searchGifs(query).subscribe((resp)  => {
       this.gifs.set(resp);
     })
   }
